@@ -1,8 +1,7 @@
+from flask import Flask, request, jsonify
 import time
 import requests
 from bs4 import BeautifulSoup
-from flask import Flask, request, jsonify, send_from_directory
-import os
 
 app = Flask(__name__)
 
@@ -26,7 +25,6 @@ def bypass_adlink(original_url):
     mapped = original_url.replace("link.adlink.click", "blog.adlink.click")
 
     session = requests.Session()
-
     try:
         r1 = session.get(mapped, headers=HEADERS, timeout=15)
     except Exception as e:
@@ -77,21 +75,17 @@ def bypass_adlink(original_url):
 
     return {"success": True, "url": json_data["url"]}
 
-
 @app.route("/")
 def home():
-    return "Adlink Bypass API Working!"
+    return "Adlink Bypass API is running!"
 
 @app.route("/bypass")
-def bypass():
-    url = request.args.get("url", "")
+def api_bypass():
+    url = request.args.get("url")
     if not url:
-        return jsonify({"success": False, "error": "URL parameter missing"}), 400
-
+        return jsonify({"success": False, "error": "No URL provided"})
     result = bypass_adlink(url)
     return jsonify(result)
 
-
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run()
